@@ -1,0 +1,2081 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGDA - Sistema de Gestión Documental y Archivística</title>
+    <style>
+        /* ═══════════════════════════════════════════════════════════════════════
+           CSS - SISTEMA DE GESTIÓN DOCUMENTAL
+           Paleta: Dark Mode Premium
+           Autor: Desarrollador Senior Full Stack
+           ═══════════════════════════════════════════════════════════════════════ */
+        
+        :root {
+            --bg-primary: #070a13;
+            --bg-panel: #0f172a;
+            --border: #1e293b;
+            --blue: #3b82f6;
+            --green: #10b981;
+            --red: #ef4444;
+            --orange: #f59e0b;
+            --purple: #8b5cf6;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --glass: rgba(30, 41, 59, 0.7);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           LAYOUT PRINCIPAL
+           ═══════════════════════════════════════════════════════════════════════ */
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            grid-template-rows: auto 1fr;
+            min-height: 100vh;
+            gap: 20px;
+            padding: 20px;
+        }
+
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto;
+            }
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           HEADER Y DASHBOARD
+           ═══════════════════════════════════════════════════════════════════════ */
+        
+        .header {
+            grid-column: 1 / -1;
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .header-subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .dashboard-card {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--blue), var(--purple));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .dashboard-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(59, 130, 246, 0.2);
+        }
+
+        .dashboard-card:hover::before {
+            opacity: 1;
+        }
+
+        .dashboard-icon {
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .dashboard-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--blue);
+            transition: color 0.3s;
+        }
+
+        .dashboard-value.active {
+            color: var(--green);
+            text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .dashboard-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--blue), var(--green));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           PANEL PRINCIPAL - FLUJOGRAMA SVG
+           ═══════════════════════════════════════════════════════════════════════ */
+        
+        .main-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            overflow: auto;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .panel-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-panel);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-success {
+            background: var(--green);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+        }
+
+        /* SVG Container */
+        .svg-container {
+            width: 100%;
+            min-height: 800px;
+            background: var(--bg-panel);
+            border-radius: 12px;
+            position: relative;
+            overflow: auto;
+        }
+
+        .flowchart-svg {
+            width: 100%;
+            height: 100%;
+            min-height: 800px;
+        }
+
+        /* Estilos de nodos SVG */
+        .node-rect {
+            fill: var(--bg-panel);
+            stroke: var(--border);
+            stroke-width: 2;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .node-rect:hover {
+            fill: rgba(59, 130, 246, 0.1);
+            stroke: var(--blue);
+            filter: drop-shadow(0 0 10px rgba(59, 130, 246, 0.5));
+        }
+
+        .node-rect.active {
+            fill: rgba(16, 185, 129, 0.2);
+            stroke: var(--green);
+            stroke-width: 3;
+            filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.6));
+        }
+
+        .node-rect.error {
+            fill: rgba(239, 68, 68, 0.2);
+            stroke: var(--red);
+            stroke-width: 3;
+        }
+
+        .node-diamond {
+            fill: var(--bg-panel);
+            stroke: var(--orange);
+            stroke-width: 2;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .node-diamond:hover {
+            fill: rgba(245, 158, 11, 0.1);
+            stroke: var(--orange);
+            filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.5));
+        }
+
+        .node-diamond.active {
+            fill: rgba(245, 158, 11, 0.2);
+            stroke: var(--orange);
+            stroke-width: 3;
+            filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.6));
+        }
+
+        .node-text {
+            fill: var(--text);
+            font-size: 11px;
+            font-weight: 500;
+            text-anchor: middle;
+            dominant-baseline: middle;
+            pointer-events: none;
+        }
+
+        .connector {
+            fill: none;
+            stroke: var(--border);
+            stroke-width: 2;
+            transition: all 0.3s ease;
+        }
+
+        .connector.active {
+            stroke: var(--green);
+            stroke-width: 3;
+            filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.5));
+            animation: dash 1s linear infinite;
+        }
+
+        .connector.return {
+            stroke: var(--red);
+            stroke-dasharray: 8,4;
+        }
+
+        .connector-label {
+            fill: var(--text-muted);
+            font-size: 10px;
+            font-weight: 600;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -20;
+            }
+        }
+
+        .phase-label {
+            fill: var(--blue);
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           PANEL LATERAL - INSPECCIÓN
+           ═══════════════════════════════════════════════════════════════════════ */
+        
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .inspection-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            flex: 1;
+        }
+
+        .inspection-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .inspection-content {
+            display: none;
+        }
+
+        .inspection-content.visible {
+            display: block;
+        }
+
+        .inspection-item {
+            margin-bottom: 16px;
+        }
+
+        .inspection-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .inspection-value {
+            font-size: 0.9rem;
+            color: var(--text);
+            line-height: 1.5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 3rem;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           RULETA DEL CONOCIMIENTO
+           ═══════════════════════════════════════════════════════════════════════ */
+        
+        .roulette-section {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+        }
+
+        .roulette-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 20px auto;
+        }
+
+        #rouletteCanvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .roulette-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 25px solid var(--red);
+            z-index: 10;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
+        }
+
+        .roulette-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: var(--bg-panel);
+            border: 3px solid var(--border);
+            border-radius: 50%;
+            z-index: 5;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+
+        .question-panel {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .question-panel.visible {
+            display: block;
+        }
+
+        .question-text {
+            font-size: 1rem;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .question-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option-btn {
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: var(--border);
+            border-color: var(--blue);
+        }
+
+        .option-btn.correct {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--green);
+            color: var(--green);
+        }
+
+        .option-btn.incorrect {
+            background: rgba(239, 68, 68, 0.2);
+            border-color: var(--red);
+            color: var(--red);
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .feedback {
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback.correct {
+            display: block;
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--green);
+        }
+
+        .feedback.incorrect {
+            display: block;
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--red);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           PROGRESO Y ESTADÍSTICAS
+           ═══════════════════════════════════════════════════════════════════════ */
+        
+        .progress-section {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .progress-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            text-align: center;
+        }
+
+        .stat-item {
+            padding: 12px;
+            background: var(--bg-panel);
+            border-radius: 8px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--blue);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           MODALES Y CERTIFICADO
+           ═══════════════════════════════════════════════════════════════════════ */
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+
+        .modal-overlay.visible {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 700px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+        }
+
+        .certificate {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border: 3px solid var(--blue);
+            border-radius: 16px;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .certificate::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(59, 130, 246, 0.03) 10px,
+                rgba(59, 130, 246, 0.03) 20px
+            );
+            animation: certificate-shine 20s linear infinite;
+        }
+
+        @keyframes certificate-shine {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .certificate-title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        .certificate-subtitle {
+            font-size: 1.1rem;
+            color: var(--text);
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .certificate-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--green);
+            margin: 20px 0;
+            padding: 16px;
+            border-bottom: 2px solid var(--blue);
+            border-top: 2px solid var(--blue);
+            position: relative;
+        }
+
+        .certificate-details {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 24px 0;
+            text-align: left;
+            position: relative;
+        }
+
+        .certificate-detail {
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+        }
+
+        .certificate-detail-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .certificate-detail-value {
+            font-size: 1rem;
+            color: var(--text);
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .seal {
+            width: 100px;
+            height: 100px;
+            margin: 20px auto;
+            background: radial-gradient(circle, var(--blue) 0%, var(--purple) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            position: relative;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.5);
+        }
+
+        .seal::before {
+            content: '';
+            position: absolute;
+            inset: 8px;
+            border: 2px dashed rgba(255,255,255,0.3);
+            border-radius: 50%;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 36px;
+            height: 36px;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            color: var(--text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .close-modal:hover {
+            background: var(--red);
+            border-color: var(--red);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           SECCIÓN DE NORMATIVA
+           ═══════════════════════════════════════════════════════════════════════ */
+        
+        .normativa-section {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-top: 20px;
+        }
+
+        .normativa-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .normativa-item {
+            background: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            transition: all 0.3s;
+        }
+
+        .normativa-item:hover {
+            border-color: var(--blue);
+            transform: translateY(-2px);
+        }
+
+        .normativa-code {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--blue);
+            margin-bottom: 4px;
+        }
+
+        .normativa-desc {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           ANIMACIONES Y EFECTOS
+           ═══════════════════════════════════════════════════════════════════════ */
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-in {
+            animation: slideIn 0.5s ease;
+        }
+
+        /* ═══════════════════════════════════════════════════════════════════════
+           RESPONSIVE
+           ═══════════════════════════════════════════════════════════════════════ */
+        
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 10px;
+                gap: 10px;
+            }
+
+            .header-title {
+                font-size: 1.4rem;
+            }
+
+            .dashboard {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .dashboard-value {
+                font-size: 1.5rem;
+            }
+
+            .certificate-details {
+                grid-template-columns: 1fr;
+            }
+
+            .normativa-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--blue);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- ═══════════════════════════════════════════════════════════════════════
+             HEADER Y DASHBOARD
+             ═══════════════════════════════════════════════════════════════════════ -->
+        <header class="header">
+            <h1 class="header-title">SGDA - Sistema de Gestión Documental y Archivística</h1>
+            <p class="header-subtitle">Digitalización Certificada conforme a la Normativa Archivística Colombiana</p>
+            
+            <div class="dashboard">
+                <div class="dashboard-card">
+                    <div class="dashboard-icon">📄</div>
+                    <div class="dashboard-value" id="foliosCount">0</div>
+                    <div class="dashboard-label">Folios Procesados</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="dashboard-icon">📁</div>
+                    <div class="dashboard-value" id="expedientesCount">0</div>
+                    <div class="dashboard-label">Expedientes Electrónicos</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="dashboard-icon">🔐</div>
+                    <div class="dashboard-value" id="firmasCount">0</div>
+                    <div class="dashboard-label">Firmas Digitales Aplicadas</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="dashboard-icon">✔</div>
+                    <div class="dashboard-value" id="controlesCount">0</div>
+                    <div class="dashboard-label">Controles de Calidad</div>
+                </div>
+                <div class="dashboard-card">
+                    <div class="dashboard-icon">📊</div>
+                    <div class="dashboard-value" id="avanceCount">0%</div>
+                    <div class="dashboard-label">Avance del Proceso</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="avanceBar"></div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════
+             PANEL PRINCIPAL - FLUJOGRAMA SVG
+             ═══════════════════════════════════════════════════════════════════════ -->
+        <main class="main-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">📋 Flujograma de Digitalización Certificada</h2>
+                <button class="btn btn-primary" id="btnEjecutar" onclick="ejecutarProceso()">
+                    ▶ EJECUTAR PROCESO
+                </button>
+            </div>
+            
+            <div class="svg-container">
+                <svg class="flowchart-svg" viewBox="0 0 1200 1400" id="flowchartSvg">
+                    <!-- Definiciones de gradientes y filtros -->
+                    <defs>
+                        <linearGradient id="gradBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.3" />
+                            <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:0.3" />
+                        </linearGradient>
+                        <filter id="glow">
+                            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                            <feMerge>
+                                <feMergeNode in="coloredBlur"/>
+                                <feMergeNode in="SourceGraphic"/>
+                            </feMerge>
+                        </filter>
+                    </defs>
+                    
+                    <!-- FASE 1: RECEPCIÓN DOCUMENTAL -->
+                    <text x="100" y="30" class="phase-label">▶ FASE 1: RECEPCIÓN DOCUMENTAL</text>
+                    
+                    <!-- Inicio -->
+                    <ellipse cx="150" cy="80" rx="60" ry="30" class="node-rect" id="node-inicio" onclick="mostrarInfo('inicio')"/>
+                    <text x="150" y="85" class="node-text">INICIO</text>
+                    
+                    <!-- Recepción -->
+                    <rect x="250" y="50" width="140" height="60" rx="8" class="node-rect" id="node-recepcion" onclick="mostrarInfo('recepcion')"/>
+                    <text x="320" y="85" class="node-text">Recepción de Transferencia</text>
+                    
+                    <!-- Verificación FUID -->
+                    <rect x="450" y="50" width="140" height="60" rx="8" class="node-rect" id="node-fuid" onclick="mostrarInfo('fuid')"/>
+                    <text x="520" y="85" class="node-text">Verificación contra FUID</text>
+                    
+                    <!-- Control Integridad -->
+                    <rect x="650" y="50" width="140" height="60" rx="8" class="node-rect" id="node-integridad" onclick="mostrarInfo('integridad')"/>
+                    <text x="720" y="85" class="node-text">Control de Integridad</text>
+                    
+                    <!-- Conectores Fase 1 -->
+                    <path d="M 210 80 L 250 80" class="connector" id="conn-1"/>
+                    <path d="M 390 80 L 450 80" class="connector" id="conn-2"/>
+                    <path d="M 590 80 L 650 80" class="connector" id="conn-3"/>
+                    <path d="M 790 80 L 850 80 L 850 160 L 100 160 L 100 200" class="connector" id="conn-f1-f2"/>
+                    
+                    <!-- FASE 2: PREPARACIÓN -->
+                    <text x="100" y="190" class="phase-label">▶ FASE 2: PREPARACIÓN</text>
+                    
+                    <!-- Preparación Física -->
+                    <rect x="50" y="210" width="130" height="50" rx="8" class="node-rect" id="node-prep-fisica" onclick="mostrarInfo('prep-fisica')"/>
+                    <text x="115" y="240" class="node-text">Preparación Física</text>
+                    
+                    <!-- Evaluación Conservación -->
+                    <rect x="220" y="210" width="130" height="50" rx="8" class="node-rect" id="node-conservacion" onclick="mostrarInfo('conservacion')"/>
+                    <text x="285" y="240" class="node-text">Eval. Conservación</text>
+                    
+                    <!-- Configuración Escáner -->
+                    <rect x="390" y="210" width="130" height="50" rx="8" class="node-rect" id="node-escaner" onclick="mostrarInfo('escaner')"/>
+                    <text x="455" y="240" class="node-text">Config. Escáner 300 DPI</text>
+                    
+                    <!-- Captura Digital -->
+                    <rect x="560" y="210" width="130" height="50" rx="8" class="node-rect" id="node-captura" onclick="mostrarInfo('captura')"/>
+                    <text x="625" y="240" class="node-text">Captura Digital</text>
+                    
+                    <!-- Previsualización -->
+                    <rect x="730" y="210" width="130" height="50" rx="8" class="node-rect" id="node-preview" onclick="mostrarInfo('preview')"/>
+                    <text x="795" y="240" class="node-text">Previsualización</text>
+                    
+                    <!-- Decisión 1 -->
+                    <polygon points="930,210 980,235 930,260 880,235" class="node-diamond" id="node-decision1" onclick="mostrarInfo('decision1')"/>
+                    <text x="930" y="240" class="node-text" style="font-size:9px">¿Legible?</text>
+                    
+                    <!-- Conectores Fase 2 -->
+                    <path d="M 180 235 L 220 235" class="connector" id="conn-4"/>
+                    <path d="M 350 235 L 390 235" class="connector" id="conn-5"/>
+                    <path d="M 520 235 L 560 235" class="connector" id="conn-6"/>
+                    <path d="M 690 235 L 730 235" class="connector" id="conn-7"/>
+                    <path d="M 860 235 L 880 235" class="connector" id="conn-8"/>
+                    
+                    <!-- Retorno NO Decisión 1 -->
+                    <path d="M 930 260 L 930 300 L 625 300 L 625 260" class="connector return" id="conn-return1"/>
+                    <text x="780" y="295" class="connector-label">NO</text>
+                    
+                    <!-- SI a Fase 3 -->
+                    <path d="M 980 235 L 1050 235 L 1050 350 L 100 350 L 100 380" class="connector" id="conn-f2-f3"/>
+                    <text x="990" y="230" class="connector-label">SI</text>
+                    
+                    <!-- FASE 3: DIGITALIZACIÓN -->
+                    <text x="100" y="370" class="phase-label">▶ FASE 3: DIGITALIZACIÓN</text>
+                    
+                    <!-- OCR -->
+                    <rect x="50" y="390" width="110" height="50" rx="8" class="node-rect" id="node-ocr" onclick="mostrarInfo('ocr')"/>
+                    <text x="105" y="420" class="node-text">Aplicación OCR</text>
+                    
+                    <!-- Indexación -->
+                    <rect x="200" y="390" width="110" height="50" rx="8" class="node-rect" id="node-indexacion" onclick="mostrarInfo('indexacion')"/>
+                    <text x="255" y="420" class="node-text">Indexación</text>
+                    
+                    <!-- Validación Metadatos -->
+                    <rect x="350" y="390" width="130" height="50" rx="8" class="node-rect" id="node-val-meta" onclick="mostrarInfo('val-meta')"/>
+                    <text x="415" y="420" class="node-text">Valid. Metadatos</text>
+                    
+                    <!-- Conformación Expediente -->
+                    <rect x="520" y="390" width="140" height="50" rx="8" class="node-rect" id="node-conformacion" onclick="mostrarInfo('conformacion')"/>
+                    <text x="590" y="420" class="node-text">Conformación Expediente</text>
+                    
+                    <!-- Foliación -->
+                    <rect x="700" y="390" width="120" height="50" rx="8" class="node-rect" id="node-foliacion" onclick="mostrarInfo('foliacion')"/>
+                    <text x="760" y="420" class="node-text">Foliación Electrónica</text>
+                    
+                    <!-- Clasificación -->
+                    <rect x="860" y="390" width="130" height="50" rx="8" class="node-rect" id="node-clasificacion" onclick="mostrarInfo('clasificacion')"/>
+                    <text x="925" y="420" class="node-text">Clasificación TRD</text>
+                    
+                    <!-- Decisión 2 -->
+                    <polygon points="1050,390 1100,415 1050,440 1000,415" class="node-diamond" id="node-decision2" onclick="mostrarInfo('decision2')"/>
+                    <text x="1050" y="420" class="node-text" style="font-size:8px">¿Coincide?</text>
+                    
+                    <!-- Conectores Fase 3 -->
+                    <path d="M 160 415 L 200 415" class="connector" id="conn-9"/>
+                    <path d="M 310 415 L 350 415" class="connector" id="conn-10"/>
+                    <path d="M 480 415 L 520 415" class="connector" id="conn-11"/>
+                    <path d="M 660 415 L 700 415" class="connector" id="conn-12"/>
+                    <path d="M 820 415 L 860 415" class="connector" id="conn-13"/>
+                    <path d="M 990 415 L 1000 415" class="connector" id="conn-14"/>
+                    
+                    <!-- Retorno NO Decisión 2 -->
+                    <path d="M 1050 440 L 1050 480 L 760 480 L 760 440" class="connector return" id="conn-return2"/>
+                    <text x="900" y="475" class="connector-label">NO</text>
+                    
+                    <!-- SI a Fase 4 -->
+                    <path d="M 1100 415 L 1150 415 L 1150 530 L 100 530 L 100 560" class="connector" id="conn-f3-f4"/>
+                    <text x="1110" y="410" class="connector-label">SI</text>
+                    
+                    <!-- FASE 4: CERTIFICACIÓN -->
+                    <text x="100" y="550" class="phase-label">▶ FASE 4: CERTIFICACIÓN</text>
+                    
+                    <!-- Acta Cierre -->
+                    <rect x="50" y="570" width="140" height="50" rx="8" class="node-rect" id="node-acta" onclick="mostrarInfo('acta')"/>
+                    <text x="120" y="600" class="node-text">Generación Acta de Cierre</text>
+                    
+                    <!-- Certificación -->
+                    <rect x="230" y="570" width="140" height="50" rx="8" class="node-rect" id="node-certificacion" onclick="mostrarInfo('certificacion')"/>
+                    <text x="300" y="600" class="node-text">Certificación del Proceso</text>
+                    
+                    <!-- Firma Digital -->
+                    <rect x="410" y="570" width="140" height="50" rx="8" class="node-rect" id="node-firma" onclick="mostrarInfo('firma')"/>
+                    <text x="480" y="600" class="node-text">Firma Digital PKI</text>
+                    
+                    <!-- Conectores Fase 4 -->
+                    <path d="M 190 595 L 230 595" class="connector" id="conn-15"/>
+                    <path d="M 370 595 L 410 595" class="connector" id="conn-16"/>
+                    <path d="M 550 595 L 600 595 L 600 700 L 100 700 L 100 730" class="connector" id="conn-f4-f5"/>
+                    
+                    <!-- FASE 5: PRESERVACIÓN -->
+                    <text x="100" y="720" class="phase-label">▶ FASE 5: PRESERVACIÓN</text>
+                    
+                    <!-- Hash SHA-256 -->
+                    <rect x="50" y="740" width="130" height="50" rx="8" class="node-rect" id="node-hash" onclick="mostrarInfo('hash')"/>
+                    <text x="115" y="770" class="node-text">Hash SHA-256</text>
+                    
+                    <!-- SGDEA -->
+                    <rect x="220" y="740" width="130" height="50" rx="8" class="node-rect" id="node-sgdea" onclick="mostrarInfo('sgdea')"/>
+                    <text x="285" y="770" class="node-text">Almacenamiento SGDEA</text>
+                    
+                    <!-- Copia Seguridad -->
+                    <rect x="390" y="740" width="130" height="50" rx="8" class="node-rect" id="node-copia" onclick="mostrarInfo('copia')"/>
+                    <text x="455" y="770" class="node-text">Copia de Seguridad</text>
+                    
+                    <!-- Trazabilidad -->
+                    <rect x="560" y="740" width="130" height="50" rx="8" class="node-rect" id="node-trazabilidad" onclick="mostrarInfo('trazabilidad')"/>
+                    <text x="625" y="770" class="node-text">Registro Trazabilidad</text>
+                    
+                    <!-- TRD -->
+                    <rect x="730" y="740" width="130" height="50" rx="8" class="node-rect" id="node-trd" onclick="mostrarInfo('trd')"/>
+                    <text x="795" y="770" class="node-text">Aplicación TRD</text>
+                    
+                    <!-- Disposición -->
+                    <rect x="900" y="740" width="130" height="50" rx="8" class="node-rect" id="node-disposicion" onclick="mostrarInfo('disposicion')"/>
+                    <text x="965" y="770" class="node-text">Disposición Documental</text>
+                    
+                    <!-- Fin -->
+                    <ellipse cx="1100" cy="765" rx="50" ry="30" class="node-rect" id="node-fin" onclick="mostrarInfo('fin')"/>
+                    <text x="1100" y="770" class="node-text">FIN</text>
+                    
+                    <!-- Conectores Fase 5 -->
+                    <path d="M 180 765 L 220 765" class="connector" id="conn-17"/>
+                    <path d="M 350 765 L 390 765" class="connector" id="conn-18"/>
+                    <path d="M 520 765 L 560 765" class="connector" id="conn-19"/>
+                    <path d="M 690 765 L 730 765" class="connector" id="conn-20"/>
+                    <path d="M 860 765 L 900 765" class="connector" id="conn-21"/>
+                    <path d="M 1030 765 L 1050 765" class="connector" id="conn-22"/>
+                </svg>
+            </div>
+
+            <!-- Sección de Normativa -->
+            <div class="normativa-section">
+                <h3 class="panel-title">📚 Marco Normativo Colombiano</h3>
+                <div class="normativa-grid">
+                    <div class="normativa-item">
+                        <div class="normativa-code">Ley 594 de 2000</div>
+                        <div class="normativa-desc">Ley General de Archivos - Establece el Sistema Nacional de Archivos</div>
+                    </div>
+                    <div class="normativa-item">
+                        <div class="normativa-code">Ley 527 de 1999</div>
+                        <div class="normativa-desc">Comercio Electrónico - Reconoce validez de documentos electrónicos</div>
+                    </div>
+                    <div class="normativa-item">
+                        <div class="normativa-code">Acuerdo AGN 001/2024</div>
+                        <div class="normativa-desc">Lineamientos para Gestión Documental en entidades públicas</div>
+                    </div>
+                    <div class="normativa-item">
+                        <div class="normativa-code">Acuerdo AGN 002/2024</div>
+                        <div class="normativa-desc">Protocolos de Digitalización Certificada de documentos</div>
+                    </div>
+                    <div class="normativa-item">
+                        <div class="normativa-code">FUID</div>
+                        <div class="normativa-desc">Formato Único de Inventario Documental - Control de transferencias</div>
+                    </div>
+                    <div class="normativa-item">
+                        <div class="normativa-code">TRD</div>
+                        <div class="normativa-desc">Tabla de Retención Documental - Clasificación y tiempos de conservación</div>
+                    </div>
+                    <div class="normativa-item">
+                        <div class="normativa-code">SGDEA</div>
+                        <div class="normativa-desc">Sistema de Gestión Documental Electrónica y Archivos</div>
+                    </div>
+                    <div class="normativa-item">
+                        <div class="normativa-code">Firma Digital</div>
+                        <div class="normativa-desc">Infraestructura de Clave Pública (PKI) - Certificación digital</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- ═══════════════════════════════════════════════════════════════════════
+             SIDEBAR - PANEL DE INSPECCIÓN Y RULETA
+             ═══════════════════════════════════════════════════════════════════════ -->
+        <aside class="sidebar">
+            <!-- Panel de Inspección -->
+            <div class="inspection-panel">
+                <h3 class="inspection-title">🔍 Panel de Inspección</h3>
+                
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-state-icon">👆</div>
+                    <p>Haz clic en cualquier nodo del flujograma para ver detalles del proceso</p>
+                </div>
+
+                <div class="inspection-content" id="inspectionContent">
+                    <div class="inspection-item">
+                        <div class="inspection-label">Título</div>
+                        <div class="inspection-value" id="infoTitulo">-</div>
+                    </div>
+                    <div class="inspection-item">
+                        <div class="inspection-label">Objetivo</div>
+                        <div class="inspection-value" id="infoObjetivo">-</div>
+                    </div>
+                    <div class="inspection-item">
+                        <div class="inspection-label">Entradas</div>
+                        <div class="inspection-value" id="infoEntradas">-</div>
+                    </div>
+                    <div class="inspection-item">
+                        <div class="inspection-label">Salidas</div>
+                        <div class="inspection-value" id="infoSalidas">-</div>
+                    </div>
+                    <div class="inspection-item">
+                        <div class="inspection-label">Riesgos</div>
+                        <div class="inspection-value" id="infoRiesgos">-</div>
+                    </div>
+                    <div class="inspection-item">
+                        <div class="inspection-label">Controles de Calidad</div>
+                        <div class="inspection-value" id="infoControles">-</div>
+                    </div>
+                    <div class="inspection-item">
+                        <div class="inspection-label">Normativa Aplicable</div>
+                        <div class="inspection-value" id="infoNormativa">-</div>
+                    </div>
+                    <div class="inspection-item">
+                        <div class="inspection-label">Evidencias Generadas</div>
+                        <div class="inspection-value" id="infoEvidencias">-</div>
+                    </div>
+                    <div class="inspection-item">
+                        <div class="inspection-label">Buenas Prácticas</div>
+                        <div class="inspection-value" id="infoPracticas">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ruleta del Conocimiento -->
+            <div class="roulette-section">
+                <h3 class="panel-title">🎯 Ruleta del Conocimiento</h3>
+                
+                <div class="progress-stats" style="margin-bottom: 16px;">
+                    <div class="stat-item">
+                        <div class="stat-value" id="statCorrectas">0</div>
+                        <div class="stat-label">Correctas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statPendientes">10</div>
+                        <div class="stat-label">Pendientes</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="statPorcentaje">0%</div>
+                        <div class="stat-label">Completado</div>
+                    </div>
+                </div>
+
+                <div class="roulette-container">
+                    <div class="roulette-pointer"></div>
+                    <canvas id="rouletteCanvas" width="280" height="280"></canvas>
+                    <div class="roulette-center"></div>
+                </div>
+
+                <button class="btn btn-success" style="width: 100%;" id="btnGirar" onclick="girarRuleta()">
+                    🎯 GIRAR RULETA
+                </button>
+
+                <div class="question-panel" id="questionPanel">
+                    <div class="question-text" id="questionText"></div>
+                    <div class="question-options" id="questionOptions"></div>
+                    <div class="feedback" id="feedback"></div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         MODAL DE CERTIFICADO
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="modal-overlay" id="certificadoModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="cerrarCertificado()">×</button>
+            <div class="certificate" id="certificadoContent">
+                <div class="seal">🏆</div>
+                <h2 class="certificate-title">Certificado de Aprobación</h2>
+                <p class="certificate-subtitle">Gestión Documental y Digitalización Certificada</p>
+                <p class="certificate-subtitle" style="font-size: 0.9rem;">Normativa Archivística Colombiana</p>
+                
+                <div class="certificate-name" id="certNombre">Nombre del Participante</div>
+                
+                <div class="certificate-details">
+                    <div class="certificate-detail">
+                        <div class="certificate-detail-label">Fecha</div>
+                        <div class="certificate-detail-value" id="certFecha">-</div>
+                    </div>
+                    <div class="certificate-detail">
+                        <div class="certificate-detail-label">Puntaje Obtenido</div>
+                        <div class="certificate-detail-value" id="certPuntaje">-</div>
+                    </div>
+                    <div class="certificate-detail" style="grid-column: span 2;">
+                        <div class="certificate-detail-label">Competencias Adquiridas</div>
+                        <div class="certificate-detail-value">
+                            • Digitalización Certificada<br>
+                            • Normativa AGN Colombiana<br>
+                            • Gestión Documental Electrónica<br>
+                            • Control de Calidad Archivístico
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" style="margin-top: 24px;" onclick="descargarCertificado()">
+                📄 Descargar Certificado PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         JAVASCRIPT - LÓGICA DE LA APLICACIÓN
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <script>
+        // ═══════════════════════════════════════════════════════════════════════
+        // DATOS DE NODOS DEL FLUJOGRAMA
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        const nodosInfo = {
+            'inicio': {
+                titulo: 'Inicio del Proceso',
+                objetivo: 'Dar inicio formal al proceso de digitalización certificada de documentos físicos conforme a la normativa archivística colombiana.',
+                entradas: 'Documentación física lista para transferencia, solicitud de digitalización aprobada, recursos asignados.',
+                salidas: 'Orden de inicio del proceso, asignación de responsables, calendarización de actividades.',
+                riesgos: 'Falta de recursos, documentación incompleta, personal no capacitado.',
+                controles: 'Verificación de autorización escrita, confirmación de disponibilidad de infraestructura.',
+                normativa: 'Ley 594 de 2000 - Art. 5 (Principios archivísticos)',
+                evidencias: 'Acta de inicio, orden de servicio, cronograma de trabajo.',
+                practicas: 'Documentar siempre el inicio formal, establecer comunicación clara con el área solicitante.'
+            },
+            'recepcion': {
+                titulo: 'Recepción de Transferencia Documental',
+                objetivo: 'Recibir la documentación física mediante el procedimiento formal de transferencia documental.',
+                entradas: 'Documentación física, FUID (Formato Único de Inventario Documental), acta de transferencia.',
+                salidas: 'Documentación recibida, registro en sistema de control, acuse de recibo.',
+                riesgos: 'Pérdida de documentos durante transporte, daños físicos, entrega a destinatario incorrecto.',
+                controles: 'Verificación de empaque, conteo preliminar de cajas/folders, registro fotográfico.',
+                normativa: 'Ley 594 de 2000 - Capítulo IV (Transferencias)',
+                evidencias: 'Acta de transferencia firmada, registro fotográfico, acuse de recibo.',
+                practicas: 'No recibir documentación sin FUID completo, verificar integridad del empaque antes de abrir.'
+            },
+            'fuid': {
+                titulo: 'Verificación contra FUID',
+                objetivo: 'Validar que la documentación recibida corresponda exactamente con lo declarado en el FUID.',
+                entradas: 'FUID diligenciado, documentación física recibida, listado de series documentales.',
+                salidas: 'Informe de concordancia, reporte de novedades (si aplica), validación aprobada.',
+                riesgos: 'Inconsistencias entre FUID y documentación real, series mal clasificadas, faltantes documentales.',
+                controles: 'Muestreo del 100% de series, verificación de fechas extremas, conteo de folios.',
+                normativa: 'Acuerdo AGN 001 de 2024 - Art. 12 (FUID)',
+                evidencias: 'Informe de verificación, acta de novedades, FUID validado.',
+                practicas: 'Realizar verificación física sistemaática, no aceptar discrepancias sin justificación.'
+            },
+            'integridad': {
+                titulo: 'Control de Integridad Documental',
+                objetivo: 'Garantizar que todos los documentos estén completos y en condiciones óptimas para digitalización.',
+                entradas: 'Documentación verificada, criterios de integridad, estándares de conservación.',
+                salidas: 'Documentos aprobados para prepación, documentos con novedades reportadas.',
+                riesgos: 'Documentos deteriorados, páginas sueltas, información ilegible, documentos incompletos.',
+                controles: 'Inspección visual 100%, prueba de legibilidad, verificación de paginación.',
+                normativa: 'Ley 594 de 2000 - Art. 8 (Conservación)',
+                evidencias: 'Checklist de integridad, informe de estado de conservación.',
+                practicas: 'Documentar cualquier anomalía antes de manipular, usar guantes para documentos delicados.'
+            },
+            'prep-fisica': {
+                titulo: 'Preparación Física de Folios',
+                objetivo: 'Acondicionar físicamente cada folio para garantizar la mejor calidad de digitalización.',
+                entradas: 'Documentos integros, materiales de preparación, guantes de manipulación.',
+                salidas: 'Folios preparados, documentos desencolados, grapas y clips removidos.',
+                riesgos: 'Daño físico durante preparación, pérdida de folios, alteración del orden original.',
+                controles: 'Registro de secuencia, supervisión continua, manejo con guantes libres de polvo.',
+                normativa: 'Acuerdo AGN 002 de 2024 - Anexo Técnico',
+                evidencias: 'Registro fotográfico del proceso, checklist de preparación.',
+                practicas: 'Mantener orden original, numerar folios si no lo tienen, no usar corrector ni cinta adhesiva.'
+            },
+            'conservacion': {
+                titulo: 'Evaluación de Conservación',
+                objetivo: 'Determinar si los documentos requieren tratamiento previo antes de la digitalización.',
+                entradas: 'Folios preparados, criterios de evaluación, protocolos de conservación.',
+                salidas: 'Documentos aptos para escaneo, documentos que requieren restauración.',
+                riesgos: 'Digitalización de documentos frágiles sin protección, deterioro acelerado.',
+                controles: 'Evaluación por conservador profesional, registro de estado físico.',
+                normativa: 'Ley 594 de 2000 - Art. 8 (Preservación)',
+                evidencias: 'Informe de evaluación de conservación, plan de tratamiento.',
+                practicas: 'Consultar con especialista si hay dudas, no exponer documentos frágiles a luz intensa.'
+            },
+            'escaner': {
+                titulo: 'Configuración de Escáner 300 DPI',
+                objetivo: 'Configurar el equipo de escaneo para cumplir con estándares de digitalización certificada.',
+                entradas: 'Manual del escáner, especificaciones técnicas requeridas, calibración de color.',
+                salidas: 'Escáner configurado a 300 DPI, color 24-bit, formato TIFF o PDF/A.',
+                riesgos: 'Resolución insuficiente, configuración de color incorrecta, formato inadecuado.',
+                controles: 'Verificación con patrón de prueba, calibración previa, prueba piloto.',
+                normativa: 'Acuerdo AGN 002 de 2024 - Resolución mínima',
+                evidencias: 'Registro de configuración, imagen de prueba, certificado de calibración.',
+                practicas: 'Usar siempre 300 DPI como mínimo, preferir escáner plano para documentos frágiles.'
+            },
+            'captura': {
+                titulo: 'Captura Digital de Imágenes',
+                objetivo: 'Digitalizar cada folio garantizando la captura completa y legible de la información.',
+                entradas: 'Folios preparados, escáner configurado, software de captura.',
+                salidas: 'Archivos de imagen digitales, metadatos iniciales de captura.',
+                riesgos: 'Cortes de imagen, sombras, reflejos, páginas faltantes, duplicados.',
+                controles: 'Verificación visual 100%, control de paginación, revisión de calidad inmediata.',
+                normativa: 'Acuerdo AGN 002 de 2024 - Proceso de captura',
+                evidencias: 'Imágenes digitales, log de captura, metadatos EXIF.',
+                practicas: 'Capturar en orden secuencial, verificar que la imagen esté completa antes de continuar.'
+            },
+            'preview': {
+                titulo: 'Previsualización Técnica',
+                objetivo: 'Revisar la calidad técnica de las imágenes capturadas antes de continuar el proceso.',
+                entradas: 'Imágenes digitales capturadas, estándares de calidad, herramientas de visualización.',
+                salidas: 'Imágenes aprobadas, imágenes marcadas para recaptura.',
+                riesgos: 'Aceptar imágenes de baja calidad, no detectar errores de captura.',
+                controles: 'Zoom al 100%, verificación de nítidez, control de orientación.',
+                normativa: 'Acuerdo AGN 002 de 2024 - Control de calidad',
+                evidencias: 'Registro de aprobación, reporte de recapturas necesarias.',
+                practicas: 'Revisar muestra representativa, verificar legibilidad de textos pequeños.'
+            },
+            'decision1': {
+                titulo: 'Decisión: ¿Imagen Legible y Nítida?',
+                objetivo: 'Determinar si la calidad de la imagen capturada cumple con los estándares de digitalización certificada.',
+                entradas: 'Imagen previsualizada, criterios de calidad definidos.',
+                salidas: 'Decisión SI (continuar) o NO (recapturar).',
+                riesgos: 'Aceptar imágenes deficientes, retrasos por recapturas frecuentes.',
+                controles: 'Lista de verificación de calidad, comparación con original.',
+                normativa: 'Acuerdo AGN 002 de 2024 - Calidad de imagen',
+                evidencias: 'Registro de decisión, justificación en caso de recaptura.',
+                practicas: 'Ser estricto con la calidad, es mejor recapturar que tener imágenes deficientes.'
+            },
+            'ocr': {
+                titulo: 'Aplicación OCR',
+                objetivo: 'Extraer el texto contenido en las imágenes mediante reconocimiento óptico de caracteres.',
+                entradas: 'Imágenes digitales de calidad, motor OCR configurado, diccionarios especializados.',
+                salidas: 'Texto extraído en capa oculta, índice de confianza OCR, metadatos de texto.',
+                riesgos: 'Baja precisión en textos manuscritos, errores de reconocimiento, formato complejo.',
+                controles: 'Muestreo de verificación OCR, índice de confianza mínimo 95%.',
+                normativa: 'Ley 527 de 1999 - Validez de documentos electrónicos',
+                evidencias: 'Archivo con capa OCR, reporte de precisión, texto validado.',
+                practicas: 'Revisar OCR en documentos críticos, usar diccionarios especializados por área.'
+            },
+            'indexacion': {
+                titulo: 'Indexación de Metadatos',
+                objetivo: 'Asignar metadatos descriptivos y administrativos a cada documento digital.',
+                entradas: 'Imágenes con OCR, esquema de metadatos, TRD aplicable.',
+                salidas: 'Documentos con metadatos completos, registro en base de datos.',
+                riesgos: 'Metadatos incompletos, errores de transcripción, inconsistencias.',
+                controles: 'Validación contra fuentes autorizadas, verificación cruzada.',
+                normativa: 'Acuerdo AGN 001 de 2024 - Metadatos obligatorios',
+                evidencias: 'Registro de metadatos, validación de completitud.',
+                practicas: 'Seguir esquema de metadatos institucional, verificar ortografía.'
+            },
+            'val-meta': {
+                titulo: 'Validación de Metadatos',
+                objetivo: 'Verificar que los metadatos asignados sean correctos y completos.',
+                entradas: 'Metadatos indexados, fuentes de verificación, criterios de validación.',
+                salidas: 'Metadatos validados, correcciones realizadas.',
+                riesgos: 'Metadatos incorrectos propagados, búsquedas posteriores fallidas.',
+                controles: 'Validación por segundo operador, verificación automatizada de campos obligatorios.',
+                normativa: 'Acuerdo AGN 001 de 2024 - Control de calidad de metadatos',
+                evidencias: 'Informe de validación, registro de correcciones.',
+                practicas: 'Validar fechas, nombres propios y números de documento cuidadosamente.'
+            },
+            'conformacion': {
+                titulo: 'Conformación de Expediente Electrónico',
+                objetivo: 'Agrupar los documentos digitales conforme a la estructura de expediente definida.',
+                entradas: 'Documentos digitales individuales, estructura de expediente, clasificación TRD.',
+                salidas: 'Expediente electrónico estructurado, índice electrónico generado.',
+                riesgos: 'Orden incorrecto de documentos, faltantes, duplicados.',
+                controles: 'Verificación contra índice físico, control de foliación.',
+                normativa: 'Ley 594 de 2000 - Art. 12 (Expedientes)',
+                evidencias: 'Expediente electrónico conformado, índice generado.',
+                practicas: 'Mantener coherencia con estructura física, documentar cualquier variación.'
+            },
+            'foliacion': {
+                titulo: 'Foliación Electrónica',
+                objetivo: 'Asignar numeración electrónica secuencial a cada folio del expediente.',
+                entradas: 'Expediente conformado, criterios de foliación, numeración original.',
+                salidas: 'Expediente foliado electrónicamente, índice de foliación.',
+                riesgos: 'Saltos en numeración, duplicados, inconsistencias con foliación física.',
+                controles: 'Verificación de secuencia, control de anexos y desagregaciones.',
+                normativa: 'Acuerdo AGN 002 de 2024 - Foliación electrónica',
+                evidencias: 'Índice de foliación, registro de anomalías.',
+                practicas: 'Mantener correspondencia con foliación física cuando exista.'
+            },
+            'clasificacion': {
+                titulo: 'Clasificación por Serie y Subserie',
+                objetivo: 'Ubicar cada documento en la serie y subserie documental correspondiente según TRD.',
+                entradas: 'Expediente foliado, TRD vigente, criterios de clasificación.',
+                salidas: 'Documentos clasificados, codificación según TRD aplicada.',
+                riesgos: 'Clasificación incorrecta, aplicación de TRD desactualizada.',
+                controles: 'Validación por archivista, verificación contra TRD oficial.',
+                normativa: 'Ley 594 de 2000 - Art. 6 (Clasificación)',
+                evidencias: 'Registro de clasificación, validación TRD.',
+                practicas: 'Consultar TRD oficial vigente, documentar criterios aplicados.'
+            },
+            'decision2': {
+                titulo: 'Decisión: ¿Índice Coincide con Folios?',
+                objetivo: 'Verificar que el índice electrónico corresponda exactamente con los folios digitalizados.',
+                entradas: 'Índice electrónico, folios digitalizados, lista de verificación.',
+                salidas: 'Validación aprobada o solicitud de corrección.',
+                riesgos: 'Inconsistencias no detectadas, expedientes incompletos.',
+                controles: 'Verificación 100% de correspondencia, validación cruzada.',
+                normativa: 'Acuerdo AGN 002 de 2024 - Control de calidad',
+                evidencias: 'Informe de validación de índice.',
+                practicas: 'Ser meticuloso en la verificación, corregir antes de continuar.'
+            },
+            'acta': {
+                titulo: 'Generación de Acta de Cierre',
+                objetivo: 'Documentar formalmente la finalización del proceso de digitalización.',
+                entradas: 'Expediente digital validado, metadatos completos, reportes de calidad.',
+                salidas: 'Acta de cierre del proceso de digitalización.',
+                riesgos: 'Omisión de información relevante, datos incorrectos en el acta.',
+                controles: 'Revisión por supervisor, validación de datos.',
+                normativa: 'Ley 594 de 2000 - Art. 10 (Actas)',
+                evidencias: 'Acta de cierre firmada, anexos de soporte.',
+                practicas: 'Incluir todos los metadatos relevantes, conservar copia de respaldo.'
+            },
+            'certificacion': {
+                titulo: 'Certificación del Proceso',
+                objetivo: 'Certificar que el proceso de digitalización cumplió con todos los requisitos normativos.',
+                entradas: 'Acta de cierre, evidencias de calidad, validaciones realizadas.',
+                salidas: 'Certificación de digitalización conforme a AGN.',
+                riesgos: 'Certificación sin cumplimiento total de requisitos.',
+                controles: 'Lista de verificación de requisitos, aprobación jerárquica.',
+                normativa: 'Acuerdo AGN 002 de 2024 - Certificación',
+                evidencias: 'Certificado de digitalización, soportes de cumplimiento.',
+                practicas: 'No certificar hasta cumplir el 100% de requisitos.'
+            },
+            'firma': {
+                titulo: 'Firma Digital PKI',
+                objetivo: 'Aplicar firma digital calificada al expediente electrónico certificado.',
+                entradas: 'Certificado de digitalización, clave privada del firmante, infraestructura PKI.',
+                salidas: 'Expediente firmado digitalmente, registro en sistema de firmas.',
+                riesgos: 'Clave comprometida, firma no válida, error en certificado digital.',
+                controles: 'Verificación de validez de certificado, auditoría de firma.',
+                normativa: 'Ley 527 de 1999 - Firma Digital',
+                evidencias: 'Expediente con firma digital, registro de auditoría.',
+                practicas: 'Usar siempre certificados vigentes, verificar validez antes de firmar.'
+            },
+            'hash': {
+                titulo: 'Generación de Hash SHA-256',
+                objetivo: 'Generar huella digital única del expediente para garantizar integridad futura.',
+                entradas: 'Expediente firmado, algoritmo SHA-256, herramienta de hash.',
+                salidas: 'Valor hash SHA-256, registro de integridad.',
+                riesgos: 'Uso de algoritmo débil, error en generación, pérdida de registro.',
+                controles: 'Verificación de algoritmo, almacenamiento seguro del hash.',
+                normativa: 'Ley 527 de 1999 - Integridad de documentos',
+                evidencias: 'Registro de hash, constancia de generación.',
+                practicas: 'Usar SHA-256 como mínimo, almacenar hash en ubicación separada.'
+            },
+            'sgdea': {
+                titulo: 'Almacenamiento en SGDEA',
+                objetivo: 'Ingresar el expediente electrónico al Sistema de Gestión Documental.',
+                entradas: 'Expediente firmado y hasheado, credenciales de SGDEA, estructura de carpetas.',
+                salidas: 'Expediente almacenado, registro en inventario electrónico.',
+                riesgos: 'Pérdida de datos, almacenamiento en ubicación incorrecta, accesos no autorizados.',
+                controles: 'Verificación de carga, control de accesos, respaldo inmediato.',
+                normativa: 'Ley 594 de 2000 - SGDEA',
+                evidencias: 'Registro de ingreso, captura de pantalla, URL de ubicación.',
+                practicas: 'Verificar carga completa, documentar ubicación exacta.'
+            },
+            'copia': {
+                titulo: 'Copia de Seguridad',
+                objetivo: 'Generar copias de respaldo del expediente en medios y ubicaciones alternas.',
+                entradas: 'Expediente en SGDEA, política de respaldos, medios de almacenamiento.',
+                salidas: 'Copias de seguridad verificadas, registro de respaldos.',
+                riesgos: 'Fallo en respaldo, corrupción de datos, pérdida de copias.',
+                controles: 'Verificación de integridad de copias, almacenamiento off-site.',
+                normativa: 'Ley 594 de 2000 - Art. 8 (Respaldo)',
+                evidencias: 'Registro de respaldos, verificación de restauración.',
+                practicas: 'Probar restauración periódicamente, mantener copias en ubicaciones separadas.'
+            },
+            'trazabilidad': {
+                titulo: 'Registro de Trazabilidad',
+                objetivo: 'Documentar todas las acciones realizadas durante el ciclo de vida del expediente.',
+                entradas: 'Logs del sistema, registros de operadores, metadatos de proceso.',
+                salidas: 'Registro completo de trazabilidad, informe de auditoría.',
+                riesgos: 'Registros incompletos, pérdida de trazabilidad.',
+                controles: 'Registro automático, imposibilidad de modificar logs.',
+                normativa: 'Ley 594 de 2000 - Art. 7 (Trazabilidad)',
+                evidencias: 'Logs de auditoría, registro de trazabilidad.',
+                practicas: 'Mantener registros inalterables, documentar cada operación.'
+            },
+            'trd': {
+                titulo: 'Aplicación TRD',
+                objetivo: 'Aplicar los tiempos de retención y disposición definidos en la Tabla de Retención.',
+                entradas: 'TRD vigente, clasificación del expediente, fecha de cierre.',
+                salidas: 'Expediente con retención asignada, fecha de disposición calculada.',
+                riesgos: 'Aplicación de TRD incorrecta, tiempos de retención erróneos.',
+                controles: 'Validación por archivista, verificación de TRD aplicable.',
+                normativa: 'Ley 594 de 2000 - Art. 6 (TRD)',
+                evidencias: 'Registro de aplicación de TRD, cálculo de retención.',
+                practicas: 'Verificar TRD vigente, considerar resoluciones modificatorias.'
+            },
+            'disposicion': {
+                titulo: 'Disposición Documental',
+                objetivo: 'Definir la disposición final del documento físico según procedimientos establecidos.',
+                entradas: 'Resolución de digitalización certificada, política de disposición.',
+                salidas: 'Documento físico dispuesto (conservación o eliminación).',
+                riesgos: 'Eliminación prematura, pérdida de original sin respaldo.',
+                controles: 'Autorización escrita, verificación de respaldo, acta de disposición.',
+                normativa: 'Ley 594 de 2000 - Art. 15 (Eliminación)',
+                evidencias: 'Acta de disposición, autorización de eliminación.',
+                practicas: 'Conservar físico hasta confirmar integridad digital, documentar disposición.'
+            },
+            'fin': {
+                titulo: 'Fin del Proceso',
+                objetivo: 'Concluir formalmente el proceso de digitalización certificada.',
+                entradas: 'Expediente digital preservado, documento físico dispuesto, cierre documentado.',
+                salidas: 'Proceso completado, informe final, archivo de documentación de proceso.',
+                riesgos: 'Cierre sin cumplimiento de todos los requisitos.',
+                controles: 'Lista de cierre, aprobación final, archivo de expediente de proceso.',
+                normativa: 'Acuerdo AGN 002 de 2024 - Cierre de proceso',
+                evidencias: 'Informe final, expediente de proceso archivado.',
+                practicas: 'Documentar lecciones aprendidas, archivar expediente del proyecto.'
+            }
+        };
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // PREGUNTAS DE LA RULETA
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        const preguntas = [
+            {
+                tema: 'Ley 594',
+                pregunta: '¿Qué establece la Ley 594 de 2000 en Colombia?',
+                opciones: [
+                    'El código de comercio electrónico',
+                    'El Sistema Nacional de Archivos y la gestión documental',
+                    'La protección de datos personales',
+                    'El régimen de contratación pública'
+                ],
+                correcta: 1
+            },
+            {
+                tema: 'Ley 527',
+                pregunta: '¿Qué reconoce la Ley 527 de 1999?',
+                opciones: [
+                    'La validez jurídica de los mensajes de datos y documentos electrónicos',
+                    'La creación del Archivo General de la Nación',
+                    'La clasificación de documentos secretos',
+                    'El régimen de archivos históricos'
+                ],
+                correcta: 0
+            },
+            {
+                tema: 'AGN',
+                pregunta: '¿Cuál es la función principal del Archivo General de la Nación?',
+                opciones: [
+                    'Custodiar solo documentos del siglo XIX',
+                    'Dirigir el Sistema Nacional de Archivos y fijar políticas archivísticas',
+                    'Digitalizar documentos privados',
+                    'Vender reproducciones de documentos históricos'
+                ],
+                correcta: 1
+            },
+            {
+                tema: 'FUID',
+                pregunta: '¿Qué significa FUID en gestión documental?',
+                opciones: [
+                    'Fondo Único de Inversión Digital',
+                    'Formato Único de Inventario Documental',
+                    'Federación de Usuarios de Información Digital',
+                    'Fondo de Utilidades para Investigación Documental'
+                ],
+                correcta: 1
+            },
+            {
+                tema: 'TRD',
+                pregunta: '¿Qué es la TRD en archivística?',
+                opciones: [
+                    'Tabla de Retención Documental',
+                    'Tecnología de Registro Digital',
+                    'Transferencia Rápida de Datos',
+                    'Tesorería de Registros Documentales'
+                ],
+                correcta: 0
+            },
+            {
+                tema: 'OCR',
+                pregunta: '¿Qué hace la tecnología OCR?',
+                opciones: [
+                    'Comprime imágenes para ahorrar espacio',
+                    'Reconoce texto en imágenes y lo convierte a editable',
+                    'Cifra documentos para seguridad',
+                    'Organiza documentos automáticamente'
+                ],
+                correcta: 1
+            },
+            {
+                tema: 'PKI',
+                pregunta: '¿Qué significa PKI en el contexto de firma digital?',
+                opciones: [
+                    'Programa de Knowledge Integration',
+                    'Infraestructura de Clave Pública',
+                    'Protocolo de Knowledge Internet',
+                    'Plataforma de Key Integration'
+                ],
+                correcta: 1
+            },
+            {
+                tema: 'SGDEA',
+                pregunta: '¿Qué es el SGDEA?',
+                opciones: [
+                    'Sistema de Gestión Documental Electrónica y Archivos',
+                    'Software General de Documentación Efectiva y Ágil',
+                    'Servicio de Gestión de Datos Electrónicos Avanzados',
+                    'Sistema Global de Digitalización Electrónica Aplicada'
+                ],
+                correcta: 0
+            },
+            {
+                tema: '300 DPI',
+                pregunta: '¿Por qué es importante escanear a 300 DPI mínimo?',
+                opciones: [
+                    'Para que el archivo pese menos',
+                    'Para garantizar legibilidad y validez legal de la digitalización',
+                    'Para que sea compatible con todos los navegadores',
+                    'Para aplicar OCR automáticamente'
+                ],
+                correcta: 1
+            },
+            {
+                tema: 'Digitalización Certificada',
+                pregunta: '¿Qué requisito es OBLIGATORIO para la digitalización certificada según el AGN?',
+                opciones: [
+                    'Usar escáner de marca específica',
+                    'Aplicación de firma digital y cumplimiento de protocolos AGN',
+                    'Tener al menos 5 años de experiencia',
+                    'Digitalizar solo en blanco y negro'
+                ],
+                correcta: 1
+            }
+        ];
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // VARIABLES GLOBALES
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        let preguntasPendientes = [...preguntas];
+        let preguntasCorrectas = [];
+        let puntajeTotal = 0;
+        let preguntaActual = null;
+        let isSpinning = false;
+        let currentRotation = 0;
+        let procesoEjecutando = false;
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // INICIALIZACIÓN
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            inicializarRuleta();
+            actualizarEstadisticas();
+        });
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // PANEL DE INSPECCIÓN
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        function mostrarInfo(nodoId) {
+            const info = nodosInfo[nodoId];
+            if (!info) return;
+
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('inspectionContent').classList.add('visible');
+
+            document.getElementById('infoTitulo').textContent = info.titulo;
+            document.getElementById('infoObjetivo').textContent = info.objetivo;
+            document.getElementById('infoEntradas').textContent = info.entradas;
+            document.getElementById('infoSalidas').textContent = info.salidas;
+            document.getElementById('infoRiesgos').textContent = info.riesgos;
+            document.getElementById('infoControles').textContent = info.controles;
+            document.getElementById('infoNormativa').textContent = info.normativa;
+            document.getElementById('infoEvidencias').textContent = info.evidencias;
+            document.getElementById('infoPracticas').textContent = info.practicas;
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // SIMULADOR DE PROCESO
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        const secuenciaNodos = [
+            'inicio', 'recepcion', 'fuid', 'integridad',
+            'prep-fisica', 'conservacion', 'escaner', 'captura', 'preview', 'decision1',
+            'ocr', 'indexacion', 'val-meta', 'conformacion', 'foliacion', 'clasificacion', 'decision2',
+            'acta', 'certificacion', 'firma',
+            'hash', 'sgdea', 'copia', 'trazabilidad', 'trd', 'disposicion', 'fin'
+        ];
+
+        const conectoresSecuencia = [
+            'conn-1', 'conn-2', 'conn-3', 'conn-f1-f2',
+            'conn-4', 'conn-5', 'conn-6', 'conn-7', 'conn-8',
+            'conn-f2-f3',
+            'conn-9', 'conn-10', 'conn-11', 'conn-12', 'conn-13', 'conn-14',
+            'conn-f3-f4',
+            'conn-15', 'conn-16', 'conn-f4-f5',
+            'conn-17', 'conn-18', 'conn-19', 'conn-20', 'conn-21', 'conn-22'
+        ];
+
+        async function ejecutarProceso() {
+            if (procesoEjecutando) return;
+            procesoEjecutando = true;
+
+            const btn = document.getElementById('btnEjecutar');
+            btn.disabled = true;
+            btn.textContent = '⏳ EJECUTANDO...';
+
+            // Resetear estados
+            document.querySelectorAll('.node-rect, .node-diamond').forEach(n => {
+                n.classList.remove('active', 'error');
+            });
+            document.querySelectorAll('.connector').forEach(c => {
+                c.classList.remove('active');
+            });
+
+            // Resetear dashboard
+            document.getElementById('foliosCount').textContent = '0';
+            document.getElementById('expedientesCount').textContent = '0';
+            document.getElementById('firmasCount').textContent = '0';
+            document.getElementById('controlesCount').textContent = '0';
+            document.getElementById('avanceCount').textContent = '0%';
+            document.getElementById('avanceBar').style.width = '0%';
+
+            let folios = 0;
+            let expedientes = 0;
+            let firmas = 0;
+            let controles = 0;
+
+            for (let i = 0; i < secuenciaNodos.length; i++) {
+                const nodoId = secuenciaNodos[i];
+                const nodo = document.getElementById('node-' + nodoId);
+                
+                if (nodo) {
+                    nodo.classList.add('active');
+                    nodo.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    // Actualizar dashboard según el nodo
+                    if (['captura', 'preview', 'ocr'].includes(nodoId)) {
+                        folios += Math.floor(Math.random() * 50) + 10;
+                        document.getElementById('foliosCount').textContent = folios;
+                        document.getElementById('foliosCount').classList.add('active');
+                    }
+                    if (['conformacion', 'certificacion'].includes(nodoId)) {
+                        expedientes++;
+                        document.getElementById('expedientesCount').textContent = expedientes;
+                        document.getElementById('expedientesCount').classList.add('active');
+                    }
+                    if (nodoId === 'firma') {
+                        firmas++;
+                        document.getElementById('firmasCount').textContent = firmas;
+                        document.getElementById('firmasCount').classList.add('active');
+                    }
+                    if (['fuid', 'integridad', 'val-meta', 'decision1', 'decision2'].includes(nodoId)) {
+                        controles++;
+                        document.getElementById('controlesCount').textContent = controles;
+                        document.getElementById('controlesCount').classList.add('active');
+                    }
+
+                    // Actualizar avance
+                    const porcentaje = Math.round(((i + 1) / secuenciaNodos.length) * 100);
+                    document.getElementById('avanceCount').textContent = porcentaje + '%';
+                    document.getElementById('avanceBar').style.width = porcentaje + '%';
+
+                    // Activar conector anterior
+                    if (i > 0 && conectoresSecuencia[i - 1]) {
+                        const conn = document.getElementById(conectoresSecuencia[i - 1]);
+                        if (conn) conn.classList.add('active');
+                    }
+
+                    await sleep(800);
+                    nodo.classList.remove('active');
+                }
+            }
+
+            // Mostrar mensaje de éxito
+            setTimeout(() => {
+                alert('✅ Proceso de Digitalización Certificada Finalizado Exitosamente');
+                btn.disabled = false;
+                btn.textContent = '▶ EJECUTAR PROCESO';
+                procesoEjecutando = false;
+            }, 500);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // RULETA DEL CONOCIMIENTO
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        function inicializarRuleta() {
+            const canvas = document.getElementById('rouletteCanvas');
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 130;
+
+            const colores = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4', '#84cc16', '#f97316', '#ec4899', '#6366f1'];
+            const anglePerSection = (2 * Math.PI) / 10;
+
+            // Dibujar secciones
+            for (let i = 0; i < 10; i++) {
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, i * anglePerSection, (i + 1) * anglePerSection);
+                ctx.closePath();
+                ctx.fillStyle = colores[i];
+                ctx.fill();
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Texto
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(i * anglePerSection + anglePerSection / 2);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 11px sans-serif';
+                ctx.textAlign = 'center';
+                const temas = ['Ley 594', 'Ley 527', 'AGN', 'FUID', 'TRD', 'OCR', 'PKI', 'SGDEA', '300 DPI', 'Digitalización'];
+                ctx.fillText(temas[i], radius * 0.65, 4);
+                ctx.restore();
+            }
+        }
+
+        function girarRuleta() {
+            if (isSpinning || preguntasPendientes.length === 0) return;
+            
+            isSpinning = true;
+            document.getElementById('btnGirar').disabled = true;
+            document.getElementById('questionPanel').classList.remove('visible');
+
+            const canvas = document.getElementById('rouletteCanvas');
+            const spins = 5 + Math.random() * 3;
+            const extraAngle = Math.random() * 360;
+            const totalRotation = spins * 360 + extraAngle;
+            
+            const duration = 4000;
+            const startTime = Date.now();
+            const startRotation = currentRotation;
+
+            function animate() {
+                const elapsed = Date.now() - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Easing cúbico para desaceleración suave
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                currentRotation = startRotation + (totalRotation * easeOut);
+                
+                canvas.style.transform = `rotate(${currentRotation}deg)`;
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    isSpinning = false;
+                    document.getElementById('btnGirar').disabled = false;
+                    
+                    // Seleccionar pregunta
+                    const sectionIndex = Math.floor(((360 - (currentRotation % 360)) / 36) % 10);
+                    mostrarPregunta(sectionIndex);
+                }
+            }
+
+            animate();
+        }
+
+        function mostrarPregunta(temaIndex) {
+            const temas = ['Ley 594', 'Ley 527', 'AGN', 'FUID', 'TRD', 'OCR', 'PKI', 'SGDEA', '300 DPI', 'Digitalización Certificada'];
+            const temaSeleccionado = temas[temaIndex];
+            
+            // Filtrar preguntas del tema
+            const preguntasDelTema = preguntasPendientes.filter(p => p.tema === temaSeleccionado);
+            
+            if (preguntasDelTema.length > 0) {
+                preguntaActual = preguntasDelTema[0];
+            } else {
+                // Si no hay del tema, tomar cualquiera
+                preguntaActual = preguntasPendientes[Math.floor(Math.random() * preguntasPendientes.length)];
+            }
+
+            document.getElementById('questionText').textContent = `[${preguntaActual.tema}] ${preguntaActual.pregunta}`;
+            
+            const optionsContainer = document.getElementById('questionOptions');
+            optionsContainer.innerHTML = '';
+            
+            preguntaActual.opciones.forEach((opcion, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opcion;
+                btn.onclick = () => verificarRespuesta(index);
+                optionsContainer.appendChild(btn);
+            });
+
+            document.getElementById('feedback').className = 'feedback';
+            document.getElementById('questionPanel').classList.add('visible');
+        }
+
+        function verificarRespuesta(seleccion) {
+            const feedback = document.getElementById('feedback');
+            const botones = document.querySelectorAll('.option-btn');
+            
+            botones.forEach(btn => btn.disabled = true);
+
+            if (seleccion === preguntaActual.correcta) {
+                // Respuesta correcta
+                botones[seleccion].classList.add('correct');
+                feedback.textContent = '✅ ¡Correcto! Has acertado.';
+                feedback.className = 'feedback correct';
+                
+                puntajeTotal += 10;
+                preguntasCorrectas.push(preguntaActual);
+                preguntasPendientes = preguntasPendientes.filter(p => p !== preguntaActual);
+                
+                actualizarEstadisticas();
+                
+                // Verificar si completó todas
+                if (preguntasPendientes.length === 0) {
+                    setTimeout(mostrarCertificado, 1500);
+                }
+            } else {
+                // Respuesta incorrecta - Modo estricto
+                botones[seleccion].classList.add('incorrect');
+                feedback.textContent = '❌ Respuesta incorrecta. La pregunta permanecerá activa.';
+                feedback.className = 'feedback incorrect';
+                
+                // No revelar respuesta correcta, mantener pregunta
+            }
+        }
+
+        function actualizarEstadisticas() {
+            document.getElementById('statCorrectas').textContent = preguntasCorrectas.length;
+            document.getElementById('statPendientes').textContent = preguntasPendientes.length;
+            
+            const total = preguntas.length;
+            const completado = Math.round((preguntasCorrectas.length / total) * 100);
+            document.getElementById('statPorcentaje').textContent = completado + '%';
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // CERTIFICADO
+        // ═══════════════════════════════════════════════════════════════════════
+        
+        function mostrarCertificado() {
+            const nombre = prompt('🎉 ¡Felicidades! Has completado todas las preguntas.\n\nIngresa tu nombre para el certificado:') || 'Participante';
+            
+            document.getElementById('certNombre').textContent = nombre;
+            document.getElementById('certFecha').textContent = new Date().toLocaleDateString('es-CO', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            document.getElementById('certPuntaje').textContent = puntajeTotal + ' / 100';
+            
+            document.getElementById('certificadoModal').classList.add('visible');
+        }
+
+        function cerrarCertificado() {
+            document.getElementById('certificadoModal').classList.remove('visible');
+        }
+
+        function descargarCertificado() {
+            const certificado = document.getElementById('certificadoContent').outerHTML;
+            const ventana = window.open('', '_blank');
+            ventana.document.write(`
+                <html>
+                <head>
+                    <title>Certificado - Gestión Documental</title>
+                    <style>
+                        body { font-family: Arial, sans-serif; background: #070a13; color: #e2e8f0; padding: 40px; }
+                        .certificate { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border: 3px solid #3b82f6; border-radius: 16px; padding: 40px; text-align: center; max-width: 700px; margin: 0 auto; }
+                        .seal { width: 100px; height: 100px; margin: 20px auto; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+                        .certificate-title { font-size: 1.8rem; font-weight: 800; color: #3b82f6; text-transform: uppercase; letter-spacing: 3px; }
+                        .certificate-name { font-size: 1.5rem; font-weight: 700; color: #10b981; margin: 20px 0; padding: 16px; border-bottom: 2px solid #3b82f6; border-top: 2px solid #3b82f6; }
+                        .certificate-details { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 24px 0; text-align: left; }
+                        .certificate-detail { padding: 12px; background: rgba(0,0,0,0.2); border-radius: 8px; }
+                    </style>
+                </head>
+                <body>
+                    ${certificado}
+                </body>
+                </html>
+            `);
+            ventana.document.close();
+            ventana.print();
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('certificadoModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarCertificado();
+            }
+        });
+    </script>
+</body>
+</html>
